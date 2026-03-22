@@ -24,6 +24,9 @@ RUN npm install -g agent-browser \
 # ── Playwright + Chromium ────────────────────────────────────────────────────
 RUN npx playwright install --with-deps chromium
 
+# ── CodeRabbit CLI ───────────────────────────────────────────────────────────
+RUN curl -fsSL https://cli.coderabbit.ai/install.sh | CODERABBIT_INSTALL_DIR=/usr/local/bin sh
+
 # ── Git defaults ─────────────────────────────────────────────────────────────
 RUN git config --system init.defaultBranch main \
     && git config --system push.autoSetupRemote true
@@ -34,7 +37,8 @@ RUN mkdir -p /home/node/.bun/install/cache \
     && mkdir -p /home/node/.claude/skills \
     && mkdir -p /home/node/.agents/skills \
     && mkdir -p /home/node/.config/gh \
+    && mkdir -p /home/node/.coderabbit \
     && mkdir -p /cache/git-mirrors \
     && mkdir -p /workspace \
     && chown -R node:node /home/node/.bun /home/node/.npm \
-       /home/node/.claude /home/node/.agents /home/node/.config/gh /cache /workspace
+       /home/node/.claude /home/node/.agents /home/node/.config/gh /home/node/.coderabbit /cache /workspace
