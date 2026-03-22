@@ -1,0 +1,11 @@
+.env
+node_modules/
+
+# Auth credentials — must never be committed
+**/credentials.json
+**/.credentials.json
+**/auth.json
+**/git-credentials
+**/hosts.yml
+*.pem
+*.key

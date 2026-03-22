@@ -91,11 +91,17 @@ H:/devcontainers/                  # Persistent host-side state (shared across a
    - `git-credentials` — `https://USERNAME:FINE_GRAINED_PAT@github.com`
    - `gh/hosts.yml` — same PAT and username
 
-2. **Set up Claude Code config** in `H:/devcontainers/config/claude/` — copy your credentials, settings, and skills, or start fresh.
+2. **Set up Claude Code auth** — two files needed:
+   - `config/claude/.credentials.json` — OAuth tokens. Copy from `~/.claude/.credentials.json` on a machine where you've run `claude` and logged in.
+   - `config/claude.json` — onboarding state + OAuth account info. Copy from `~/.claude.json` (home directory root, NOT inside `.claude/`). This file prevents the first-run setup wizard.
+   - Optionally copy settings, skills, rules, commands, and agents into `config/claude/`.
 
-3. **Build the base image**: `bash H:/devcontainers/scripts/devup.sh --build-base`
+3. **Set up CodeRabbit auth**:
+   - `config/coderabbit/auth.json` — Copy from `~/.coderabbit/auth.json` on a machine where you've run `coderabbit auth login`.
 
-4. **Rebuild periodically** to pick up updates (Node.js, Claude Code, Bun): run `--build-base` again.
+4. **Build the base image**: `bash H:/devcontainers/scripts/devup.sh --build-base`
+
+5. **Rebuild periodically** to pick up updates (Node.js, Claude Code, Bun): run `--build-base` again.
 
 ## Caching
 
