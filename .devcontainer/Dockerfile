@@ -17,6 +17,13 @@ RUN curl -fsSL https://bun.sh/install | BUN_INSTALL=/usr/local bash
 # ── Claude Code ──────────────────────────────────────────────────────────────
 RUN npm install -g @anthropic-ai/claude-code
 
+# ── Agent Browser ────────────────────────────────────────────────────────────
+RUN npm install -g agent-browser \
+    && agent-browser install
+
+# ── Playwright + Chromium ────────────────────────────────────────────────────
+RUN npx playwright install --with-deps chromium
+
 # ── Git defaults ─────────────────────────────────────────────────────────────
 RUN git config --system init.defaultBranch main \
     && git config --system push.autoSetupRemote true
