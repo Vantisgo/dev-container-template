@@ -1,0 +1,52 @@
+services:
+  app:
+    image: devcontainer-base:latest
+    volumes:
+      # ── Git mirrors (read-only reference for fast clones) ──
+      - H:/devcontainers/cache/git-mirrors:/cache/git-mirrors:ro
+
+      # ── Dependency caches (shared across all containers) ──
+      - H:/devcontainers/cache/bun-cache:/home/node/.bun/install/cache
+      - H:/devcontainers/cache/npm-cache:/home/node/.npm
+
+      # ── Git auth (staged read-only, copied to writable paths by entrypoint) ──
+      - H:/devcontainers/config:/home/node/.host-config:ro
+
+      # ── Includes (global + type-specific, overlaid into workspace) ──
+      - H:/devcontainers/includes:/includes:ro
+
+      # ── Entrypoint ──
+      - H:/devcontainers/scripts/entrypoint.sh:/usr/local/bin/devcontainer-entrypoint.sh:ro
+
+    entrypoint: ["/bin/bash", "/usr/local/bin/devcontainer-entrypoint.sh"]
+    command: sleep infinity
+    user: node
+
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/devdb
+      GITHUB_REPO: ${GITHUB_REPO:-}
+      BRANCH_NAME: ${BRANCH_NAME:-}
+      PROJECT_TYPE: ${PROJECT_TYPE:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: devdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres-data:
