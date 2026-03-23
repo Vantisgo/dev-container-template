@@ -3,20 +3,20 @@ services:
     image: devcontainer-base:latest
     volumes:
       # ── Git mirrors (read-only reference for fast clones) ──
-      - H:/devcontainers/cache/git-mirrors:/cache/git-mirrors:ro
+      - ${DEVCONTAINERS_ROOT}/cache/git-mirrors:/cache/git-mirrors:ro
 
       # ── Dependency caches (shared across all containers) ──
-      - H:/devcontainers/cache/bun-cache:/home/node/.bun/install/cache
-      - H:/devcontainers/cache/npm-cache:/home/node/.npm
+      - ${DEVCONTAINERS_ROOT}/cache/bun-cache:/home/node/.bun/install/cache
+      - ${DEVCONTAINERS_ROOT}/cache/npm-cache:/home/node/.npm
 
-      # ── Git auth (staged read-only, copied to writable paths by entrypoint) ──
-      - H:/devcontainers/config:/home/node/.host-config:ro
+      # ── Git auth + Claude Code + CodeRabbit config (read-only, copied by entrypoint) ──
+      - ${DEVCONTAINERS_ROOT}/config:/home/node/.host-config:ro
 
       # ── Includes (global + type-specific, overlaid into workspace) ──
-      - H:/devcontainers/includes:/includes:ro
+      - ${DEVCONTAINERS_ROOT}/includes:/includes:ro
 
       # ── Entrypoint ──
-      - H:/devcontainers/scripts/entrypoint.sh:/usr/local/bin/devcontainer-entrypoint.sh:ro
+      - ${DEVCONTAINERS_ROOT}/scripts/entrypoint.sh:/usr/local/bin/devcontainer-entrypoint.sh:ro
 
     entrypoint: ["/bin/bash", "/usr/local/bin/devcontainer-entrypoint.sh"]
     command: sleep infinity
