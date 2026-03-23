@@ -4,12 +4,12 @@ Non-obvious details that can't be discovered by scanning the codebase.
 
 ## Two-directory architecture
 
-This repo (`H:/dev-container-template`) only contains the Docker/compose template. All persistent host-side state lives in a separate directory: `H:/devcontainers/`.
+- **`dev-container-template/`** (this repo) — The blueprint. Dockerfile, docker-compose, setup script, source copies of runtime scripts. Cloned from GitHub.
+- **`devcontainers/`** (created by `setup.sh`) — Persistent host-side state. Config, caches, auth files, runtime scripts. Never in git.
 
-- `H:/devcontainers/config/` — git credentials, GitHub CLI auth, Claude Code config (settings, skills, agents, rules, commands), and `claude.json` (onboarding state + OAuth account)
-- `H:/devcontainers/cache/` — git bare mirrors, bun/npm download caches (shared across all containers)
-- `H:/devcontainers/includes/` — files overlaid into workspaces: `global/` for all projects, `nextjs/`/`electron/` for type-specific
-- `H:/devcontainers/scripts/` — `devup.sh`, `devdown.sh`, `entrypoint.sh`
+The `devcontainers/.env` file stores machine-specific paths (`DEVCONTAINERS_ROOT`, `TEMPLATE_ROOT`, `GIT_BASH`). Scripts and docker-compose resolve all paths from these variables.
+
+`setup.sh` bridges the two: it reads from the template repo and bootstraps the devcontainers directory, copying scripts and creating the directory structure.
 
 ## Claude Code config loading
 
@@ -17,7 +17,7 @@ Claude Code uses two separate config locations:
 - `~/.claude/` — settings, credentials, skills, rules, commands (the directory)
 - `~/.claude.json` — global state file in the home directory root (NOT inside `.claude/`). Contains `hasCompletedOnboarding`, `theme`, and `oauthAccount`. Without this file, Claude Code shows the onboarding wizard.
 
-Both are copied (not mounted) from `H:/devcontainers/config/` into the container by the entrypoint so Claude Code can write runtime state.
+Both are copied (not mounted) from `devcontainers/config/` into the container by the entrypoint so Claude Code can write runtime state.
 
 ## Container naming
 
@@ -25,7 +25,7 @@ Docker Compose project name = `{repo-short}-{branch-slug}-{HHMMSS}`. Service con
 
 ## Entrypoint execution order
 
-1. Copy git/gh/Claude config from read-only mounts to writable paths
+1. Copy git/gh/Claude/CodeRabbit config from read-only mounts to writable paths
 2. Clone repo (using `--reference` from mirror if available)
 3. Checkout/create branch
 4. Auto-detect project type (`next.config.*` → nextjs, `electron` in package.json → electron)
@@ -37,3 +37,7 @@ Docker Compose project name = `{repo-short}-{branch-slug}-{HHMMSS}`. Service con
 ## Git auth
 
 Uses a fine-grained PAT via git credential-store. The credentials file is mounted read-only then copied to a writable path — the credential-store helper requires write access for lock files.
+
+## Windows shell execution
+
+The `.cmd` wrappers read `GIT_BASH` from `devcontainers/.env` to call Git Bash explicitly — PowerShell's `bash` resolves to WSL bash, which can't see Windows paths like `H:/devcontainers/...`.
